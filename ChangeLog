@@ -1,3 +1,70 @@
+2012-08-05  Stefano Lattarini <stefano.lattarini@gmail.com>
+
+	build: support (and require) Automake-NG
+
+	And regenerate with Automake-NG (development version), Aclocal (from
+	Automake-NG), Autoconf and Autoheader (2.68), and Libtool 2.4.2.
+
+	* configure.ac (AC_PREREQ): Require Autoconf version >= 2.65,
+	since that is the minimal version supported by Automake-NG.
+	(AC_PROG_INSTALL, AC_PROG_MAKE_SET): Remove: they are implied
+	by AM_INIT_AUTOMAKE.
+	(AC_EXEEXT): Remove; the Autoconf manual list it as obsolete, and
+	anyway AC_PROG_CC + AM_INIT_AUTOMAKE handle $(EXEEXT) support
+	correctly by themselves.
+	(AM_INIT_AUTOMAKE): Add the 'ng' option, to ensure that mainstream
+	Automake is not used by mistake when bootstrapping.  Also, add a
+	required Automake version of '1.12a', which is the latest (and still
+	development-only) version of Automake-NG at the moment of writing.
+	(example/calc/configure.in): Rename ...
+	(example/calc/configure.ac): ... like this, because Automake-NG has
+	dropped support for 'configure.in' as the Autoconf input file.
+	Modernize to avoid constructs, idioms or macros that Automake-NG
+	warns about, or rejects outright.
+	(example/hello/configure.in): Rename ...
+	(example/hello/configure.ac): ... like this, for the same reason.
+	And modernize in the same way.
+	(example/mathhelper/configure.ac): Modernize likewise.  Also ...
+	(AC_CONFIG_AUX_DIR): ... add this, with argument '.', for libtool's
+	sake.
+	* dejagnu/example/mathhelper/testsuite/mathhelper/Makefile.am
+	(INCLUDES): This is obsolete and unsupported by Automake-NG;
+	rename it ...
+	(AM_CPPFLAGS): ... like this.
+	* example/mathhelper/COPYING, example/mathhelper/INSTALL,
+	* example/mathhelper/ltmain.sh, example/mathhelper/missing,
+	* example/mathhelper/install-sh, example/mathhelper/depcomp,
+	* example/mathhelper/config.sub, example/mathhelper/config.guess,
+	* am-ng/am-dir.mk, am-ng/check-typos.mk, am-ng/texibuild.mk,
+	* am-ng/common-targets.mk, am-ng/header-vars.mk, am-ng/clean.mk,
+	* example/hello/am-ng/am-dir.mk,
+	* example/hello/am-ng/clean.mk,
+	* example/hello/am-ng/check-typos.mk,
+	* example/hello/am-ng/common-targets.mk,
+	* example/hello/am-ng/header-vars.mk,
+	* example/mathhelper/am-ng/am-dir.mk,
+	* example/mathhelper/am-ng/check-typos.mk,
+	* example/mathhelper/am-ng/clean.mk,
+	* example/mathhelper/am-ng/common-targets.mk,
+	* example/mathhelper/am-ng/header-vars.mk:
+	Add, generated or installed by "autoreconf -fvi".
+	* INSTALL, Makefile.in, aclocal.m4, config.guess, config.sub,
+	* configure, depcomp, install-sh, missing, texinfo.tex,
+	* example/calc/INSTALL, example/calc/Makefile.in,
+	* example/calc/aclocal.m4, example/calc/calc.h.in,
+	* example/calc/configure, example/hello/INSTALL,
+	* example/hello/Makefile.in, example/hello/aclocal.m4,
+	* example/hello/configure, example/hello/depcomp,
+	* example/hello/install-sh, example/hello/missing,
+	* example/hello/testsuite/Makefile.in,
+	* example/mathhelper/Makefile.in,
+	* example/mathhelper/aclocal.m4, example/mathhelper/configure
+	* example/mathhelper/libmathhelper/Makefile.in,
+	* example/mathhelper/testsuite/Makefile.in,
+	* example/mathhelper/testsuite/mathhelper/Makefile.in:
+	Re-generated or re-installed by "autoreconf -fvi".
+	* .gitignore: New.
+
 2012-06-15  Andreas Schwab  <schwab@linux-m68k.org>
 
 	* lib/framework.exp (clone_output): Protect from leading dash in

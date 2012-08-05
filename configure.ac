@@ -1,7 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
-dnl 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
+dnl Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+dnl 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2012 Free
+dnl Software Foundation, Inc.
 dnl
 dnl This file is part of DejaGnu.
 dnl
@@ -19,16 +20,13 @@ dnl You should have received a copy of the GNU General Public License
 dnl along with DejaGnu; if not, write to the Free Software Foundation,
 dnl Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.
 
-AC_PREREQ(2.50)
+AC_PREREQ([2.65])
 AC_INIT([GNU DejaGnu], 1.5.1, [bug-dejagnu@gnu.org])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([1.12a ng])
 AM_MAINTAINER_MODE
-AC_PROG_MAKE_SET
 
 AC_PROG_CC
 AC_PROG_CXX
-AC_PROG_INSTALL
-AC_EXEEXT
 
 dnl Search for the Docbook utilities.
 AC_PATH_PROG([DOCBOOK2HTML], [docbook2html], [false])

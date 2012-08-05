@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2001, 2002 Clifton Labs, Inc
+# Copyright (c) 2001, 2002, 2012 Clifton Labs, Inc
 # All rights reserved.
 
 # CLIFTON LABS MAKES NO REPRESENTATIONS OR WARRANTIES ABOUT THE
@@ -22,25 +22,20 @@
 
 # Author: Philip A. Wilsey	philip.wilsey@ieee.org
 
+# Later modified by Stefano Lattarini <stefano.lattarini@gmail.com>
+# to work better with Automake-NG.
+
 # ------------------------------------------------------------------------
 
-AC_INIT(helloworld, demo-version, philip.wilsey@ieee.org)
-AM_INIT_AUTOMAKE(helloworld, demo-version)
+AC_INIT([helloworld], [demo-version], [philip.wilsey@ieee.org])
+AM_INIT_AUTOMAKE([ng])
 
-#AC_CONFIG_SRCDIR([hello.cc])
-#AC_CONFIG_HEADER([config.h])
+AC_CONFIG_SRCDIR([hello.c])
+#AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_NO_EXECUTABLES
 AC_PROG_CC
-
-# Checks for libraries.
-
-# Checks for header files.
-
-# Checks for typedefs, structures, and compiler characteristics.
-
-# Checks for library functions.
 
 AC_CONFIG_FILES([Makefile testsuite/Makefile])
 AC_OUTPUT

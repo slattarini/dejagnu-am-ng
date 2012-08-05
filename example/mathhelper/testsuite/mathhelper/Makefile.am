@@ -20,7 +20,7 @@ CLEANFILES = *.log *.sum site.bak
 all:
 	@echo "Nothing to be done for all"
 
-INCLUDES= \
+AM_CPPFLAGS = \
  -I$(top_srcdir)/libmathhelper -I/opt/dejagnu-1.4.4/include
 
 noinst_PROGRAMS = 

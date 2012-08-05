@@ -1,26 +1,20 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT
+AC_INIT([mathhelper], [1.0])
 AC_CONFIG_SRCDIR([libmathhelper/mathhelper.c])
+AC_CONFIG_AUX_DIR([.])
 
 dnl handles checking target
 AC_CANONICAL_TARGET([])
 
-AM_INIT_AUTOMAKE(mathhelper,1.0)
+AM_INIT_AUTOMAKE([ng])
 
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 
-dnl Checks for libraries.
-
-dnl Checks for header files.
-
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
-
-dnl Checks for library functions.
-AC_PROG_INSTALL
 
 AC_CONFIG_FILES([Makefile
     libmathhelper/Makefile

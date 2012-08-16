@@ -30,6 +30,11 @@ define am.error
 $(warning $1)$(eval am.error.seen := yes)
 endef
 
+# Declare an error, and immediately terminate execution.
+define am.fatal
+$(if $1,$(call am.error,$1))$(error Some Automake-NG error occurred)
+endef
+
 #
 # Sometimes, in our makefiles, we want to assign a default value to a
 # variable that might not have been assigned yet.  One might think that
@@ -74,6 +79,12 @@ am.chars.squote := '
 # whitespace handling, and allow us to obtain tricky semantics.  See the
 # definition of $(am.chars.newline) just below for a significant example.
 am.chars.empty :=
+
+# A single whitespace.
+am.chars.space := $(am.chars.empty) $(am.chars.empty)
+
+# A single tabulation character.
+am.chars.tab := $(am.chars.empty)	$(am.chars.empty)
 
 # A literal newline character, that does not get stripped if used
 # at the end of the expansion of another macro.
@@ -254,10 +265,12 @@ am.max-cmdline-args := xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 # the system would allow it), or our implementation will likely suffer in
 # performance and in memory consumption.
 
-# $(call am.xargs-map,FUNCTION,LIST)
-# ----------------------------------
-# Map the function $1 on the arguments $2, ensuring that each
-# call of $1 has at most 40 arguments.
+# $(call am.xargs-map,FUNCTION,LIST,[EXTRA-ARGS..])
+# -------------------------------------------------
+# Map the function $1 on the whitespace-separated list $2, ensuring that
+# each call of $1 has at most 40 entries from that list at once.  If
+# further arguments are given (up to $9), they are passed to each $1
+# invocation.
 # This implementation is hacky, but the more elegant or "naive" ones
 # (based on recursion) proved to be ludicrously memory-hungry with
 # huge lists.
@@ -272,10 +285,11 @@ $(if $2,$(strip \
     )$(eval $0.counter := $$($0.counter)x)$(strip \
     )$(eval $0.partial-args += $$i)$(strip \
     )$(if $(filter $(am.max-cmdline-args),$($0.counter)),$(strip \
-      )$(call $1,$(strip $($0.partial-args)))$(strip \
+      )$(call $1,$(strip $($0.partial-args)),$3,$4,$5,$6,$7,$8,$9)$(strip \
       )$(eval $0.partial-args :=)$(strip \
       )$(eval $0.counter :=)))$(strip \
-  )$(if $($0.counter),$(call $1,$(strip $($0.partial-args)))))
+  )$(if $($0.counter),$(call $1,$(strip \
+                        $($0.partial-args)),$3,$4,$5,$6,$7,$8,$9)))
 endef
 
 # Used only by the 'am.clean-cmd.*' functions below.  Do not use in
@@ -324,3 +338,66 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+
+# Number of files to install concurrently.
+am__install_max = 40
+# Take a "$list" of nobase files, collect them, indexed by their
+# srcdir-stripped dirnames.  For up to am__install_max files, output
+# a line containing the dirname and the files, space-separated.
+# The arbitrary limit helps avoid the quadratic scaling exhibited by
+# string concatenation in most shells, and should avoid line length
+# limitations, while still offering only negligible performance impact
+# through spawning more install commands than absolutely needed.
+am__nobase_list = \
+  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`; \
+  for p in $$list; do echo "$$p $$p"; done | \
+  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
+  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
+    if (++n[$$2] == $(am__install_max)) \
+      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
+    END { for (dir in files) print dir, files[dir] }'
+# Collect up to 40 files per line from stdin.
+am__base_list = \
+  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
+  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+
+# New function, backslash-escape whitespace in the given string.
+define am.util.whitespace-escape
+$(subst $(am.chars.space),\$(am.chars.space),$(subst $(am.chars.tab),\$(am.chars.tab),$1))
+endef
+
+# Determine whether the given file exists.  Since this function is
+# expected to be used on paths referencing $(DESTDIR), it must be
+# ready to cope with whitespaces and shell metacharacters.
+# FIXME: here we assume that the shell found by Autoconf-generated
+# configure supports "test -e"; that is not completely correct ATM, but
+# future versions of Autoconf will reject non-POSIX shells, so we should
+# be safe in the long term.
+define am.util.file-exists
+$(strip \
+  $(if $(strip $(findstring *,$1) $(findstring ?,$1) \
+               $(findstring [,$1) $(findstring ],$1)), \
+    $(shell test -e '$(subst $(am.chars.squote),'\'',$1)' && echo yes), \
+    $(if $(wildcard $(call am.util.whitespace-escape,$1)),yes)))
+endef
+
+# $(call am.uninst.cmd,DIR,FILES,[RM-OPTS])
+# -----------------------------------------
+# Uninstall the given files from the given directory, avoiding to hit
+# command line length limits, and honoring $(DESTDIR).  If the given DIR
+# is actually an empty name, or it it refers to a non-existing file, it
+# is assumed nothing is to be removed.  The RM-OPTS (if present) are
+# passed to the rm invocation removing the files (this ca be useful in
+# case such files are actually directories (as happens with the HTML
+# documentation), in which case rm should be passed the '-r' option.
+# Similarly to the 'am.clean-cmd.f' above, this function is only meant
+# to be used in a "sub-recipe" by its own.
+
+define am.uninst.cmd.aux
+$(if $(and $2,$1),$(if $(call am.util.file-exists,$(DESTDIR)$2),$(strip \
+)cd '$(DESTDIR)$2' && rm -f$(if $3, $3) $1$(am.chars.newline)))
+endef
+
+define am.uninst.cmd
+$(call am.xargs-map,$0.aux,$(strip $2),$(strip $1),$(strip $3))
+endef

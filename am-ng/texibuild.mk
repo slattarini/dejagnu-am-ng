@@ -5,7 +5,7 @@ DVIPS = dvips
 MAKEINFOHTML = $(MAKEINFO) --html
 AM_MAKEINFOHTMLFLAGS ?= $(AM_MAKEINFOFLAGS)
 
-define am__texibuild_dvi_or_pdf
+define am.texi.build.dvi-or-pdf
 	$1$(am.cmd.ensure-target-dir-exists) && \
 	TEXINPUTS="$(am__TEXINFO_TEX_DIR)$(PATH_SEPARATOR)$$TEXINPUTS" \
 	MAKEINFO='$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) \
@@ -14,31 +14,14 @@ define am__texibuild_dvi_or_pdf
 	   -o $@ $< $(AM_V_TEXI_DEVNULL_REDIRECT)
 endef
 
-define am__texibuild_info
-	$(if $1,,@$(am.cmd.ensure-target-dir-exists))
-	$(AM_V_MAKEINFO)restore=: && backupdir=.am$$$$ && \
-	$(if $1,am__cwd=`pwd` && cd $(srcdir) &&) \
-	rm -rf $$backupdir && mkdir $$backupdir && \
-	if ($(MAKEINFO) --version) >/dev/null 2>&1; then \
-	  for f in $@ $@-[0-9] $@-[0-9][0-9]; do \
-	    if test -f $$f; then mv $$f $$backupdir; restore=mv; else :; fi; \
-	  done; \
-	else :; fi && \
-	$(if $(am__info_insrc),cd "$$am__cwd" &&) \
-	if $(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) \
-	               -I $(@D) -I $(srcdir)/$(@D) -o $@ $<; \
-	then \
-	  rc=0; \
-	  $(if $(am__info_insrc),cd $(srcdir);) \
-	else \
-	  rc=$$?; \
-	  $(if $(am__info_insrc),cd $(srcdir) &&) \
-	  $$restore $$backupdir/* $(@D); \
-	fi; \
-	rm -rf $$backupdir; exit $$rc
+define am.texi.build.info
+	$(if $1,,$(AM_V_at)$(am.cmd.ensure-target-dir-exists))
+	$(AM_V_MAKEINFO)$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) \
+	                --no-split -I $(@D) -I $(srcdir)/$(@D) -o $@-t $<
+	$(AM_V_at)mv -f $@-t $@
 endef
 
-define am__texibuild_html
+define am.texi.build.html
 	$(AM_V_MAKEINFO)$(am.cmd.ensure-target-dir-exists) \
 	  && { test ! -d $(@:.html=.htp) || rm -rf $(@:.html=.htp); } \
 	  || exit 1; \
@@ -46,24 +29,20 @@ define am__texibuild_html
 	                    -I $(@D) -I $(srcdir)/$(@D) \
 			    -o $(@:.html=.htp) $<; \
 	then \
-	  rm -rf $@; \
-	  if test ! -d $(@:.html=.htp) && test -d $(@:.html=); then \
-	    mv $(@:.html=) $@; else mv $(@:.html=.htp) $@; fi; \
+	  rm -rf $@ && mv $(@:.html=.htp) $@; \
 	else \
-	  if test ! -d $(@:.html=.htp) && test -d $(@:.html=); then \
-	    rm -rf $(@:.html=); else rm -Rf $(@:.html=.htp) $@; fi; \
-	  exit 1; \
+	  rm -rf $(@:.html=.htp) $@; exit 1; \
 	fi
 endef
 
 %.info: %.texi
-	$(call am__texibuild_info,$(am__info_insrc))
+	$(call am.texi.build.info,$(am.texi.info-in-srcdir))
 %.dvi: %.texi
-	$(call am__texibuild_dvi_or_pdf,$(AM_V_TEXI2DVI),$(TEXI2DVI),$(@:.dvi=.t2d))
+	$(call am.texi.build.dvi-or-pdf,$(AM_V_TEXI2DVI),$(TEXI2DVI),$(@:.dvi=.t2d))
 %.pdf: %.texi
-	$(call am__texibuild_dvi_or_pdf,$(AM_V_TEXI2PDF),$(TEXI2PDF),$(@:.pdf=.t2p))
+	$(call am.texi.build.dvi-or-pdf,$(AM_V_TEXI2PDF),$(TEXI2PDF),$(@:.pdf=.t2p))
 %.html: %.texi
-	$(call am__texibuild_html)
+	$(call am.texi.build.html)
 %.ps: %.dvi
 	$(AM_V_DVIPS)TEXINPUTS="$(am__TEXINFO_TEX_DIR)$(PATH_SEPARATOR)$$TEXINPUTS" \
 	$(DVIPS) $(AM_V_TEXI_QUIETOPTS) -o $@ $<

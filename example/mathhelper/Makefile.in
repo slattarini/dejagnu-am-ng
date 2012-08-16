@@ -13,10 +13,16 @@
 # PARTICULAR PURPOSE.
 include @top_srcdir@/./am-ng/header-vars.mk
 subdir = .
+am.conf.is-topdir = yes
+am.conf.check-news = 
+am.conf.no-installinfo = 
 am.conf.aux-dir = $(top_srcdir)
 am.relpath.makefile = Makefile
 am.relpath.makefile.am = $(srcdir)/Makefile.am
 am.relpath.makefile.in = $(srcdir)/Makefile.in
+am.conf.build-triplet = $(build)
+am.conf.host-triplet = $(host)
+am.conf.target-triplet = $(target)
 am.config-hdr.local = 
 am.config-hdr.non-local = 
 am.config-hdr.local.in = 
@@ -24,8 +30,8 @@ AM_CONFIG_HEADERS = $(am.config-hdr.local) $(am.config-hdr.non-local)
 am.remake.aclocal-m4 = $(top_srcdir)/aclocal.m4
 am.remake.aclocal-m4-deps = $(top_srcdir)/configure.ac
 am.remake.configure-deps = $(am.remake.aclocal-m4-deps) $(CONFIGURE_DEPENDENCIES) $(am.remake.aclocal-m4)
-am.dist.common-files = $(am.relpath.makefile.am) $(top_srcdir)/configure $(am.remake.configure-deps) INSTALL NEWS README AUTHORS ChangeLog $(srcdir)/Makefile.in AUTHORS COPYING ChangeLog INSTALL NEWS README config.guess config.sub depcomp install-sh missing ltmain.sh config.guess config.sub config.guess config.sub install-sh ltmain.sh missing
-am__config_distclean_files = \
+am.dist.common-files = $(am.relpath.makefile.am) $(top_srcdir)/configure $(am.remake.configure-deps)
+am.clean.config-files = \
   config.status \
   config.cache \
   config.log \
@@ -45,115 +51,17 @@ AM_V_at/0 = @
 AM_V_at/1 = 
 SOURCES = 
 am.dist.sources = 
-am__create_installdir = $(if $(and $1,$^),$(MKDIR_P) '$(DESTDIR)$1',@:)
-RECURSIVE_TARGETS = dvi-recursive html-recursive info-recursive pdf-recursive ps-recursive \
-  install-dvi-recursive \
-  install-html-recursive \
-  install-info-recursive \
-  install-pdf-recursive \
-  install-ps-recursive all-recursive check-recursive installcheck-recursive tags-recursive ctags-recursive cscopelist-recursive
-am__can_run_installinfo = \
-  case $$AM_UPDATE_INFO_DIR in \
-    n|no|NO) false;; \
-    *) (install-info --version) >/dev/null 2>&1;; \
-  esac
-RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
-  distclean-recursive maintainer-clean-recursive
-am__recursive_targets = \
-  $(RECURSIVE_TARGETS) \
-  $(RECURSIVE_CLEAN_TARGETS) \
-  $(am__extra_recursive_targets)
-AM_RECURSIVE_TARGETS = $(am__recursive_targets:-recursive=) TAGS CTAGS cscope distdir dist dist-all distcheck
-am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP) $(am.config-hdr.local.in)
-# Read a list of newline-separated strings from the standard input,
-# and print each of them once, without duplicates.  Input order is
-# *not* preserved.
-am__uniquify_input = $(AWK) '\
-  BEGIN { nonempty = 0; } \
-  { items[$$0] = 1; nonempty = 1; } \
-  END { if (nonempty) { for (i in items) print i; }; } \
-'
-# Make sure the list of sources is unique.  This is necessary because,
-# e.g., the same source file might be shared among _SOURCES variables
-# for different programs/libraries.
-am__define_uniq_tagged_files = \
-  list='$(am__tagged_files)'; \
-  unique=`for i in $$list; do \
-    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
-  done | $(am__uniquify_input)`
-ETAGS = etags
-CTAGS = ctags
-CSCOPE = cscope
-am.clean.dist.f = TAGS ID GTAGS GRTAGS GSYMS GPATH tags cscope.out cscope.in.out cscope.po.out cscope.files
 am.all-progs = 
 am.all-libs = 
 am.all-ltlibs = 
 am.all.targets = 
 am.test-suite.deps = 
 DIST_SUBDIRS = $(SUBDIRS)
-am.dist.mk-files = $(wildcard $(am.conf.aux-dir)/am-ng/*)
-am.dist.all-files = $(call am.memoize,am.dist.all-files,$(strip $(sort \
-  $(am.dist.common-files) $(am.dist.sources) $(am.dist.mk-files) \
-  $(TEXINFOS) $(EXTRA_DIST))))
-am.dist.files-tmp1 = $(call am.memoize,am.dist.files-tmp1, \
-  $(subst //,/,$(subst //,/,$(am.dist.all-files))))
-am.dist.files-tmp2 = $(call am.memoize,am.dist.files-tmp2, \
-  $(filter-out $(srcdir)/% $(top_srcdir)/%, $(am.dist.files-tmp1)) \
-  $(patsubst $(srcdir)/%, %, \
-             $(filter $(srcdir)/%, $(am.dist.files-tmp1))) \
-  $(patsubst $(top_srcdir)/%, $(top_builddir)/%, \
-             $(filter $(top_srcdir)/%, $(am.dist.files-tmp1))))
-am.dist.files-cooked = \
-  $(call am.memoize,am.dist.files-cooked,$(strip $(am.dist.files-tmp2)))
-am.dist.parent-dirs = \
-  $(call am.memoize,am.dist.parent-dirs,$(strip $(sort \
-    $(filter-out ., $(patsubst ./%,%,$(dir $(am.dist.files-cooked)))))))
-am.mkdir-for-dist = \
-  @$(MKDIR_P) $(patsubst %,"$(distdir)"/%,$1)$(am.chars.newline)
-am.write-list-of-distfiles = \
-  @lst='$1'; for x in $$lst; do echo $$x; done \
-    >> $(am.dir)/$@-list$(am.chars.newline)
-distdir = $(PACKAGE)-$(VERSION)
-top_distdir = $(distdir)
-am__remove_distdir = \
-  if test -d "$(distdir)"; then \
-    find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' \
-      && rm -rf "$(distdir)" \
-      || { sleep 5 && rm -rf "$(distdir)"; }; \
-  else :; fi
-am__post_remove_distdir = $(am__remove_distdir)
-am.dist.relativize-path = \
-  dir0=`pwd`; \
-  sed_first='s,^\([^/]*\)/.*$$,\1,'; \
-  sed_rest='s,^[^/]*/*,,'; \
-  sed_last='s,^.*/\([^/]*\)$$,\1,'; \
-  sed_butlast='s,/*[^/]*$$,,'; \
-  while test -n "$$dir1"; do \
-    first=`echo "$$dir1" | sed -e "$$sed_first"`; \
-    if test "$$first" != "."; then \
-      if test "$$first" = ".."; then \
-        dir2=`echo "$$dir0" | sed -e "$$sed_last"`/"$$dir2"; \
-        dir0=`echo "$$dir0" | sed -e "$$sed_butlast"`; \
-      else \
-        first2=`echo "$$dir2" | sed -e "$$sed_first"`; \
-        if test "$$first2" = "$$first"; then \
-          dir2=`echo "$$dir2" | sed -e "$$sed_rest"`; \
-        else \
-          dir2="../$$dir2"; \
-        fi; \
-        dir0="$$dir0"/"$$first"; \
-      fi; \
-    fi; \
-    dir1=`echo "$$dir1" | sed -e "$$sed_rest"`; \
-  done; \
-  reldir="$$dir2"
-DIST_ARCHIVES = $(distdir).tar.gz
-GZIP_ENV = --best
-DIST_TARGETS = dist-gzip
-distuninstallcheck_listfiles = find . -type f -print
-am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
-  | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
-distcleancheck_listfiles = find . -type f -print
+am.dist.handle-distcheck-hook = 
+am.dist.handle-gettext = 
+am.dist.filename-filter = 
+am.dist.extra-targets = 
+am.dist.common-files.internal = INSTALL NEWS README AUTHORS ChangeLog $(srcdir)/Makefile.in AUTHORS COPYING ChangeLog INSTALL NEWS README config.guess config.sub depcomp install-sh missing ltmain.sh config.guess config.sub config.guess config.sub install-sh ltmain.sh missing
 am.clean.mostly.f.auto = 
 am.clean.mostly.d.auto = 
 am.clean.normal.f.auto = 
@@ -283,12 +191,18 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = libmathhelper testsuite
 include @top_srcdir@/./am-ng/am-dir.mk
+include @top_srcdir@/./am-ng/texinfos.mk
+include @top_srcdir@/./am-ng/tags.mk
+include @top_srcdir@/./am-ng/distdir.mk
+include @top_srcdir@/./am-ng/distcheck.mk
 include @top_srcdir@/./am-ng/common-targets.mk
 include @top_srcdir@/./am-ng/clean.mk
+include @top_srcdir@/./am-ng/subdirs.mk
 include @top_srcdir@/./am-ng/check-typos.mk
-$(if $(am.error.seen),$(error Some Automake-NG error occurred))
-$(am.relpath.makefile.in):  $(am.relpath.makefile.am) \
-                            $(am.remake.configure-deps)
+$(if $(am.error.seen),$(call am.fatal))
+$(am.relpath.makefile.in): $(am.relpath.makefile.am) \
+			   $(am.remake.configure-deps) \
+                           
 	@for dep in $?; do \
 	  case '$(am.remake.configure-deps)' in \
 	    *$$dep*) \
@@ -315,352 +229,57 @@ $(am.relpath.makefile): $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
 
-$(top_srcdir)/configure:  $(am.remake.configure-deps)
+$(top_srcdir)/configure: $(am.remake.configure-deps)
 	cd $(srcdir) && $(AUTOCONF)
-$(am.remake.aclocal-m4):  $(am.remake.aclocal-m4-deps)
+$(am.remake.aclocal-m4): $(am.remake.aclocal-m4-deps)
 	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am.remake.aclocal-m4-deps):
-
-# This directory's subdirectories are mostly independent; you can cd
-# into them and run 'make' without going through this Makefile.
-# To change the values of 'make' variables: instead of editing Makefiles,
-# (1) if the variable is set in 'config.status', edit 'config.status'
-#     (which will cause the Makefiles to be regenerated when you run 'make');
-# (2) otherwise, pass the desired values on the 'make' command line.
-$(am__recursive_targets): %-recursive:
-	@fail= failcom='exit 1'; \
-	for f in x $$MAKEFLAGS; do \
-	  case $$f in \
-	    *=* | --[!k]*);; \
-	    *k*) failcom='fail=yes';; \
-	  esac; \
-	done; \
-	dot_seen=no; \
-	case "$@" in \
-	  distclean-* | maintainer-clean-*) list='$(DIST_SUBDIRS)' ;; \
-	  *) list='$(SUBDIRS)' ;; \
-	esac; \
-	for subdir in $$list; do \
-	  echo "Making $* in $$subdir"; \
-	  if test "$$subdir" = "."; then \
-	    dot_seen=yes; \
-	    local_target=$*-am; \
-	  else \
-	    local_target=$*; \
-	  fi; \
-	  $(MAKE) -C "$$subdir" $$local_target || eval $$failcom; \
-	done; \
-	if test "$$dot_seen" = "no"; then \
-	  $(MAKE) $*-am || exit 1; \
-	fi; test -z "$$fail"
-
-ID: $(am__tagged_files)
-	$(am__define_uniq_tagged_files); mkid -fID $$unique
-tags: tags-recursive
-TAGS: tags
-
-tags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
-	set x; \
-	here=`pwd`; \
-	if ($(ETAGS) --etags-include --version) >/dev/null 2>&1; then \
-	  include_option=--etags-include; \
-	  empty_fix=.; \
-	else \
-	  include_option=--include; \
-	  empty_fix=; \
-	fi; \
-	list='$(SUBDIRS)'; for subdir in $$list; do \
-	  if test "$$subdir" = .; then :; else \
-	    test ! -f $$subdir/TAGS || \
-	      set "$$@" "$$include_option=$$here/$$subdir/TAGS"; \
-	  fi; \
-	done; \
-	$(am__define_uniq_tagged_files); \
-	shift; \
-	if test -z "$(ETAGS_ARGS)$$*$$unique"; then :; else \
-	  test -n "$$unique" || unique=$$empty_fix; \
-	  if test $$# -gt 0; then \
-	    $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
-	      "$$@" $$unique; \
-	  else \
-	    $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
-	      $$unique; \
-	  fi; \
-	fi
-ctags: ctags-recursive
-
-CTAGS: ctags
-ctags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
-	$(am__define_uniq_tagged_files); \
-	test -z "$(CTAGS_ARGS)$$unique" \
-	  || $(CTAGS) $(CTAGSFLAGS) $(AM_CTAGSFLAGS) $(CTAGS_ARGS) \
-	     $$unique
-
-GTAGS:
-	here=`cd $(top_builddir) && pwd` \
-	  && cd $(top_srcdir) \
-	  && gtags -i $(GTAGS_ARGS) "$$here"
-cscope: cscope.files
-	test ! -s cscope.files \
-	  || $(CSCOPE) -b -q $(AM_CSCOPEFLAGS) $(CSCOPEFLAGS) -i cscope.files $(CSCOPE_ARGS)
-clean-cscope:
-	rm -f cscope.files
-cscope.files: clean-cscope cscopelist
-cscopelist: cscopelist-recursive
-
-cscopelist-am: $(am__tagged_files)
-	list='$(am__tagged_files)'; \
-	case "$(srcdir)" in \
-	  [\\/]* | ?:[\\/]*) sdir="$(srcdir)" ;; \
-	  *) sdir=$(subdir)/$(srcdir) ;; \
-	esac; \
-	for i in $$list; do \
-	  if test -f "$$i"; then \
-	    echo "$(subdir)/$$i"; \
-	  else \
-	    echo "$$sdir/$$i"; \
-	  fi; \
-	done >> $(top_builddir)/cscope.files
-
-distdir: $(am.dist.all-files) | $(am.dir)
-	$(am__remove_distdir)
-	test -d "$(distdir)" || mkdir "$(distdir)"
-	$(call am.xargs-map,am.mkdir-for-dist,$(am.dist.parent-dirs))
-	@rm -f $(am.dir)/$@-list
-	$(call am.xargs-map,am.write-list-of-distfiles, \
-	       $(am.dist.files-cooked))
-	@while read file; do \
-	  if test -f $$file || test -d $$file; then d=.; else d=$(srcdir); fi; \
-	  if test -d $$d/$$file; then \
-	    dir=`echo "/$$file" | sed -e 's,/[^/]*$$,,'`; \
-	    if test -d "$(distdir)/$$file"; then \
-	      find "$(distdir)/$$file" -type d ! -perm -700 -exec chmod u+rwx {} \;; \
-	    fi; \
-	    if test -d $(srcdir)/$$file && test $$d != $(srcdir); then \
-	      cp -fpR $(srcdir)/$$file "$(distdir)$$dir" || exit 1; \
-	      find "$(distdir)/$$file" -type d ! -perm -700 -exec chmod u+rwx {} \;; \
-	    fi; \
-	    cp -fpR $$d/$$file "$(distdir)$$dir" || exit 1; \
-	  else \
-	    test -f "$(distdir)/$$file" \
-	    || cp -p $$d/$$file "$(distdir)/$$file" \
-	    || exit 1; \
-	  fi; \
-	done < $(am.dir)/$@-list
-	@list='$(DIST_SUBDIRS)'; for subdir in $$list; do \
-	  if test "$$subdir" = .; then :; else \
-	    $(am.make.dry-run) \
-	      || test -d "$(distdir)/$$subdir" \
-	      || $(MKDIR_P) "$(distdir)/$$subdir" \
-	      || exit 1; \
-	    dir1=$$subdir; dir2="$(distdir)/$$subdir"; \
-	    $(am.dist.relativize-path); \
-	    new_distdir=$$reldir; \
-	    dir1=$$subdir; dir2="$(top_distdir)"; \
-	    $(am.dist.relativize-path); \
-	    new_top_distdir=$$reldir; \
-	    echo " (cd $$subdir && $(MAKE) top_distdir="$$new_top_distdir" distdir="$$new_distdir" \\"; \
-	    echo "     am__remove_distdir=: am__skip_length_check=: am__skip_mode_fix=: distdir)"; \
-	    (cd $$subdir && \
-	      $(MAKE) \
-	        top_distdir="$$new_top_distdir" \
-	        distdir="$$new_distdir" \
-		am__remove_distdir=: \
-		am__skip_length_check=: \
-		am__skip_mode_fix=: \
-	        distdir) \
-	      || exit 1; \
-	  fi; \
-	done
-	-test -n "$(am__skip_mode_fix)" \
-	|| find "$(distdir)" -type d ! -perm -755 \
-		-exec chmod u+rwx,go+rx {} \; -o \
-	  ! -type d ! -perm -444 -links 1 -exec chmod a+r {} \; -o \
-	  ! -type d ! -perm -400 -exec chmod a+r {} \; -o \
-	  ! -type d ! -perm -444 -exec $(install_sh) -c -m a+r {} {} \; \
-	|| chmod -R a+r "$(distdir)"
-dist-gzip: distdir
-	tardir=$(distdir) && $(am__tar) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
-	$(am__post_remove_distdir)
-
-dist-bzip2: distdir
-	tardir=$(distdir) && $(am__tar) | BZIP2=$${BZIP2--9} bzip2 -c >$(distdir).tar.bz2
-	$(am__post_remove_distdir)
-
-dist-lzip: distdir
-	tardir=$(distdir) && $(am__tar) | lzip -c $${LZIP_OPT--9} >$(distdir).tar.lz
-	$(am__post_remove_distdir)
-
-dist-xz: distdir
-	tardir=$(distdir) && $(am__tar) | XZ_OPT=$${XZ_OPT--e} xz -c >$(distdir).tar.xz
-	$(am__post_remove_distdir)
-
-dist-tarZ: distdir
-	tardir=$(distdir) && $(am__tar) | compress -c >$(distdir).tar.Z
-	$(am__post_remove_distdir)
-
-dist-shar: distdir
-	shar $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).shar.gz
-	$(am__post_remove_distdir)
-
-dist-zip: distdir
-	rm -f $(distdir).zip
-	zip -rq $(distdir).zip $(distdir)
-	$(am__post_remove_distdir)
-
-dist dist-all:
-	$(MAKE) $(DIST_TARGETS) am__post_remove_distdir='@:'
-	$(am__post_remove_distdir)
-
-# This target untars the dist file and tries a VPATH configuration.  Then
-# it guarantees that the distribution is self-contained by making another
-# tarfile.
-distcheck: dist
-	case '$(DIST_ARCHIVES)' in \
-	*.tar.gz*) \
-	  GZIP=$(GZIP_ENV) gzip -dc $(distdir).tar.gz | $(am__untar) ;;\
-	*.tar.bz2*) \
-	  bzip2 -dc $(distdir).tar.bz2 | $(am__untar) ;;\
-	*.tar.lz*) \
-	  lzip -dc $(distdir).tar.lz | $(am__untar) ;;\
-	*.tar.xz*) \
-	  xz -dc $(distdir).tar.xz | $(am__untar) ;;\
-	*.tar.Z*) \
-	  uncompress -c $(distdir).tar.Z | $(am__untar) ;;\
-	*.shar.gz*) \
-	  GZIP=$(GZIP_ENV) gzip -dc $(distdir).shar.gz | unshar ;;\
-	*.zip*) \
-	  unzip $(distdir).zip ;;\
-	esac
-	chmod -R a-w $(distdir); chmod u+w $(distdir)
-	mkdir $(distdir)/_build
-	mkdir $(distdir)/_inst
-	chmod a-w $(distdir)
-	test -d $(distdir)/_build || exit 0; \
-	dc_install_base=`cd $(distdir)/_inst && pwd | sed -e 's,^[^:\\/]:[\\/],/,'` \
-	  && dc_destdir="$${TMPDIR-/tmp}/am-dc-$$$$/" \
-	  && cd $(distdir)/_build \
-	  && ../configure --srcdir=.. --prefix="$$dc_install_base" \
-	    $(AM_DISTCHECK_CONFIGURE_FLAGS) \
-	    $(DISTCHECK_CONFIGURE_FLAGS) \
-	  && $(MAKE) \
-	  && $(MAKE) dvi \
-	  && $(MAKE) check \
-	  && $(MAKE) install \
-	  && $(MAKE) installcheck \
-	  && $(MAKE) uninstall \
-	  && $(MAKE) distuninstallcheck_dir="$$dc_install_base" \
-	        distuninstallcheck \
-	  && chmod -R a-w "$$dc_install_base" \
-	  && ({ \
-	       (cd ../.. && umask 077 && mkdir "$$dc_destdir") \
-	       && $(MAKE) DESTDIR="$$dc_destdir" install \
-	       && $(MAKE) DESTDIR="$$dc_destdir" uninstall \
-	       && $(MAKE) DESTDIR="$$dc_destdir" \
-	            distuninstallcheck_dir="$$dc_destdir" distuninstallcheck; \
-	      } || { rm -rf "$$dc_destdir"; exit 1; }) \
-	  && rm -rf "$$dc_destdir" \
-	  && $(MAKE) dist \
-	  && rm -rf $(DIST_ARCHIVES) \
-	  && $(MAKE) distcleancheck
-	$(am__post_remove_distdir)
-	@(echo "$(distdir) archives ready for distribution: "; \
-	  list='$(DIST_ARCHIVES)'; for i in $$list; do echo $$i; done) | \
-	  sed -e 1h -e 1s/./=/g -e 1p -e 1x -e '$$p' -e '$$x'
-distuninstallcheck:
-	@test -n '$(distuninstallcheck_dir)' || { \
-	  echo 'ERROR: trying to run $@ with an empty' \
-	       '$$(distuninstallcheck_dir)' >&2; \
-	  exit 1; \
-	}; \
-	cd '$(distuninstallcheck_dir)' || { \
-	  echo 'ERROR: cannot chdir into $(distuninstallcheck_dir)' >&2; \
-	  exit 1; \
-	}; \
-	test `$(am__distuninstallcheck_listfiles) | wc -l` -eq 0 \
-	   || { echo "ERROR: files left after uninstall:" ; \
-	        if test -n "$(DESTDIR)"; then \
-	          echo "  (check DESTDIR support)"; \
-	        fi ; \
-	        $(distuninstallcheck_listfiles) ; \
-	        exit 1; } >&2
-distcleancheck: distclean
-	@if test '$(srcdir)' = . ; then \
-	  echo "ERROR: distcleancheck can only run from a VPATH build" ; \
-	  exit 1 ; \
-	fi
-	@test `$(distcleancheck_listfiles) | wc -l` -eq 0 \
-	  || { echo "ERROR: files left in build directory after distclean:" ; \
-	       $(distcleancheck_listfiles) ; \
-	       exit 1; } >&2
-clean: clean-recursive
-
-distclean: distclean-recursive
-
-dvi: dvi-recursive
+dvi:
 
 dvi-am:
 
-html: html-recursive
-
 html-am:
 
-info: info-recursive
+info:
 
 info-am:
 
 install-data-am:
 
-install-dvi: install-dvi-recursive
-
 install-dvi-am:
 
 install-exec-am:
 
-install-html: install-html-recursive
-
 install-html-am:
 
-install-info: install-info-recursive
+install-info:
 
 install-info-am:
 
 install-man:
 
-install-pdf: install-pdf-recursive
-
 install-pdf-am:
-
-install-ps: install-ps-recursive
 
 install-ps-am:
 
 installcheck-am:
 
-maintainer-clean: maintainer-clean-recursive
-
-mostlyclean: mostlyclean-recursive
-
-pdf: pdf-recursive
+pdf:
 
 pdf-am:
 
-ps: ps-recursive
+ps:
 
 ps-am:
 
 uninstall-am:
 
-.PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all clean-cscope \
-	cscope cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
-	dist-gzip dist-lzip dist-shar dist-tarZ dist-xz dist-zip \
-	distcheck distcleancheck distdir distuninstallcheck dvi dvi-am \
-	html html-am info info-am install install-data install-data-am \
-	install-dvi install-dvi-am install-exec install-exec-am \
-	install-html install-html-am install-info install-info-am \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am installcheck-am pdf pdf-am ps ps-am tags tags-am \
-	uninstall uninstall-am
+.PHONY: all cscopelist-am ctags-am dvi dvi-am html-am info info-am \
+	install install-data install-data-am install-dvi-am \
+	install-exec install-exec-am install-html-am install-info \
+	install-info-am install-man install-pdf-am install-ps-am \
+	installcheck-am pdf pdf-am ps ps-am tags-am uninstall \
+	uninstall-am
 
 
 # For better compatibility with mainline Automake.

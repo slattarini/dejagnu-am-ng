@@ -37,10 +37,16 @@ include @top_srcdir@/./am-ng/header-vars.mk
 
 # ------------------------------------------------------------------------
 subdir = testsuite
+am.conf.is-topdir = 
+am.conf.check-news = 
+am.conf.no-installinfo = 
 am.conf.aux-dir = $(top_srcdir)
 am.relpath.makefile = Makefile
 am.relpath.makefile.am = $(srcdir)/Makefile.am
 am.relpath.makefile.in = $(srcdir)/Makefile.in
+am.conf.build-triplet = 
+am.conf.host-triplet = 
+am.conf.target-triplet = 
 am.config-hdr.local = 
 am.config-hdr.non-local = 
 am.config-hdr.local.in = 
@@ -48,7 +54,7 @@ AM_CONFIG_HEADERS = $(am.config-hdr.local) $(am.config-hdr.non-local)
 am.remake.aclocal-m4 = $(top_srcdir)/aclocal.m4
 am.remake.aclocal-m4-deps = $(top_srcdir)/configure.ac
 am.remake.configure-deps = $(am.remake.aclocal-m4-deps) $(CONFIGURE_DEPENDENCIES) $(am.remake.aclocal-m4)
-am.dist.common-files = $(am.relpath.makefile.am) $(srcdir)/Makefile.in
+am.dist.common-files = $(am.relpath.makefile.am)
 CONFIG_CLEAN_FILES = 
 CONFIG_CLEAN_VPATH_FILES = 
 AM_V_P = $(AM_V_P/$V)
@@ -62,44 +68,16 @@ AM_V_at/0 = @
 AM_V_at/1 = 
 SOURCES = 
 am.dist.sources = 
-am__create_installdir = $(if $(and $1,$^),$(MKDIR_P) '$(DESTDIR)$1',@:)
-am__can_run_installinfo = \
-  case $$AM_UPDATE_INFO_DIR in \
-    n|no|NO) false;; \
-    *) (install-info --version) >/dev/null 2>&1;; \
-  esac
-am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP) $(am.config-hdr.local.in)
 am.all-progs = 
 am.all-libs = 
 am.all-ltlibs = 
 am.all.targets = 
 am.test-suite.deps = 
-DEJATOOL = $(PACKAGE)
-EXPECT = expect
-RUNTEST = runtest
-am.clean.dist.f = site.exp site.bak $(addsuffix .sum,$(DEJATOOL)) $(addsuffix .log,$(DEJATOOL))
-am.dist.mk-files = $(wildcard $(am.conf.aux-dir)/am-ng/*)
-am.dist.all-files = $(call am.memoize,am.dist.all-files,$(strip $(sort \
-  $(am.dist.common-files) $(am.dist.sources) $(am.dist.mk-files) \
-  $(TEXINFOS) $(EXTRA_DIST))))
-am.dist.files-tmp1 = $(call am.memoize,am.dist.files-tmp1, \
-  $(subst //,/,$(subst //,/,$(am.dist.all-files))))
-am.dist.files-tmp2 = $(call am.memoize,am.dist.files-tmp2, \
-  $(filter-out $(srcdir)/% $(top_srcdir)/%, $(am.dist.files-tmp1)) \
-  $(patsubst $(srcdir)/%, %, \
-             $(filter $(srcdir)/%, $(am.dist.files-tmp1))) \
-  $(patsubst $(top_srcdir)/%, $(top_builddir)/%, \
-             $(filter $(top_srcdir)/%, $(am.dist.files-tmp1))))
-am.dist.files-cooked = \
-  $(call am.memoize,am.dist.files-cooked,$(strip $(am.dist.files-tmp2)))
-am.dist.parent-dirs = \
-  $(call am.memoize,am.dist.parent-dirs,$(strip $(sort \
-    $(filter-out ., $(patsubst ./%,%,$(dir $(am.dist.files-cooked)))))))
-am.mkdir-for-dist = \
-  @$(MKDIR_P) $(patsubst %,"$(distdir)"/%,$1)$(am.chars.newline)
-am.write-list-of-distfiles = \
-  @lst='$1'; for x in $$lst; do echo $$x; done \
-    >> $(am.dir)/$@-list$(am.chars.newline)
+am.dist.handle-distcheck-hook = 
+am.dist.handle-gettext = 
+am.dist.filename-filter = 
+am.dist.extra-targets = 
+am.dist.common-files.internal = $(srcdir)/Makefile.in
 am.clean.mostly.f.auto = 
 am.clean.mostly.d.auto = 
 am.clean.normal.f.auto = 
@@ -216,12 +194,17 @@ EXTRA_DIST = \
 	site.exp
 
 include @top_srcdir@/./am-ng/am-dir.mk
+include @top_srcdir@/./am-ng/texinfos.mk
+include @top_srcdir@/./am-ng/tags.mk
+include @top_srcdir@/./am-ng/dejagnu.mk
+include @top_srcdir@/./am-ng/distdir.mk
 include @top_srcdir@/./am-ng/common-targets.mk
 include @top_srcdir@/./am-ng/clean.mk
 include @top_srcdir@/./am-ng/check-typos.mk
-$(if $(am.error.seen),$(error Some Automake-NG error occurred))
-$(am.relpath.makefile.in):  $(am.relpath.makefile.am) \
-                            $(am.remake.configure-deps)
+$(if $(am.error.seen),$(call am.fatal))
+$(am.relpath.makefile.in): $(am.relpath.makefile.am) \
+			   $(am.remake.configure-deps) \
+                           
 	@for dep in $?; do \
 	  case '$(am.remake.configure-deps)' in \
 	    *$$dep*) \
@@ -246,130 +229,57 @@ $(am.relpath.makefile): $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) .am/nil
 
-$(top_srcdir)/configure:  $(am.remake.configure-deps)
+$(top_srcdir)/configure: $(am.remake.configure-deps)
 	cd $(top_builddir) && $(MAKE) .am/nil
-$(am.remake.aclocal-m4):  $(am.remake.aclocal-m4-deps)
+$(am.remake.aclocal-m4): $(am.remake.aclocal-m4-deps)
 	cd $(top_builddir) && $(MAKE) .am/nil
 $(am.remake.aclocal-m4-deps):
-tags TAGS:
-
-ctags CTAGS:
-
-cscope cscopelist:
-
-
-check-DEJAGNU: site.exp
-	srcdir='$(srcdir)'; export srcdir; \
-	EXPECT=$(EXPECT); export EXPECT; \
-	if $(SHELL) -c "$(RUNTEST) --version" > /dev/null 2>&1; then \
-	  exit_status=0; l='$(DEJATOOL)'; for tool in $$l; do \
-	    if $(RUNTEST) $(AM_RUNTESTFLAGS) $(RUNTESTDEFAULTFLAGS) $(RUNTESTFLAGS); \
-	    then :; else exit_status=1; fi; \
-	  done; \
-	else echo "WARNING: could not find '$(RUNTEST)'" 1>&2; :;\
-	fi; \
-	exit $$exit_status
-site.exp: Makefile $(EXTRA_DEJAGNU_SITE_CONFIG)
-	@echo 'Making a new site.exp file ...'
-	@echo '## these variables are automatically generated by make ##' >site.tmp
-	@echo '# Do not edit here.  If you wish to override these values' >>site.tmp
-	@echo '# edit the last section' >>site.tmp
-	@echo 'set srcdir "$(srcdir)"' >>site.tmp
-	@echo "set objdir `pwd`" >>site.tmp
-	@list='$(EXTRA_DEJAGNU_SITE_CONFIG)'; for f in $$list; do \
-	  echo "## Begin content included from file $$f.  Do not modify. ##" \
-	   && cat `test -f "$$f" || echo '$(srcdir)/'`$$f \
-	   && echo "## End content included from file $$f. ##" \
-	   || exit 1; \
-	 done >> site.tmp
-	@echo "## End of auto-generated content; you can edit from here. ##" >> site.tmp
-	@if test -f site.exp; then \
-	   sed -e '1,/^## End of auto-generated content.*##/d' site.exp >> site.tmp; \
-	 fi
-	@rm -f site.bak
-	@test ! -f site.exp || mv site.exp site.bak
-	@mv site.tmp site.exp
-
-distdir: $(am.dist.all-files) | $(am.dir)
-	$(call am.xargs-map,am.mkdir-for-dist,$(am.dist.parent-dirs))
-	@rm -f $(am.dir)/$@-list
-	$(call am.xargs-map,am.write-list-of-distfiles, \
-	       $(am.dist.files-cooked))
-	@while read file; do \
-	  if test -f $$file || test -d $$file; then d=.; else d=$(srcdir); fi; \
-	  if test -d $$d/$$file; then \
-	    dir=`echo "/$$file" | sed -e 's,/[^/]*$$,,'`; \
-	    if test -d "$(distdir)/$$file"; then \
-	      find "$(distdir)/$$file" -type d ! -perm -700 -exec chmod u+rwx {} \;; \
-	    fi; \
-	    if test -d $(srcdir)/$$file && test $$d != $(srcdir); then \
-	      cp -fpR $(srcdir)/$$file "$(distdir)$$dir" || exit 1; \
-	      find "$(distdir)/$$file" -type d ! -perm -700 -exec chmod u+rwx {} \;; \
-	    fi; \
-	    cp -fpR $$d/$$file "$(distdir)$$dir" || exit 1; \
-	  else \
-	    test -f "$(distdir)/$$file" \
-	    || cp -p $$d/$$file "$(distdir)/$$file" \
-	    || exit 1; \
-	  fi; \
-	done < $(am.dir)/$@-list
-dvi: dvi-am
+dvi:
 
 dvi-am:
 
-html: html-am
-
 html-am:
 
-info: info-am
+info:
 
 info-am:
 
 install-data-am:
 
-install-dvi: install-dvi-am
-
 install-dvi-am:
 
 install-exec-am:
 
-install-html: install-html-am
-
 install-html-am:
 
-install-info: install-info-am
+install-info:
 
 install-info-am:
 
 install-man:
 
-install-pdf: install-pdf-am
-
 install-pdf-am:
-
-install-ps: install-ps-am
 
 install-ps-am:
 
 installcheck-am:
 
-pdf: pdf-am
+pdf:
 
 pdf-am:
 
-ps: ps-am
+ps:
 
 ps-am:
 
 uninstall-am:
 
-.PHONY: all check-DEJAGNU cscopelist-am ctags-am distdir dvi dvi-am \
-	html html-am info info-am install install-data install-data-am \
-	install-dvi install-dvi-am install-exec install-exec-am \
-	install-html install-html-am install-info install-info-am \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am installcheck-am pdf pdf-am ps ps-am tags-am \
-	uninstall uninstall-am
+.PHONY: all cscopelist-am ctags-am dvi dvi-am html-am info info-am \
+	install install-data install-data-am install-dvi-am \
+	install-exec install-exec-am install-html-am install-info \
+	install-info-am install-man install-pdf-am install-ps-am \
+	installcheck-am pdf pdf-am ps ps-am tags-am uninstall \
+	uninstall-am
 
 
 # hello_AUTOMAKE_OPTIONS = dejagnu
